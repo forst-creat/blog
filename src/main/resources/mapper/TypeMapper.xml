@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.liuyang.mapper.TypeMapper">
+
+<!--    Type findByName(@Param("name") String name);-->
+    <select id="findByName" resultType="com.liuyang.bean.Type">
+        select * from t_type where name = #{name}
+    </select>
+
+
+   <!-- Type getBlogAndTypeByStepTwo(@Param("type_id") Integer id);
+   association标签用于分步查询解决多对一问题-->
+    <select id="getBlogAndTypeByStepTwo" resultType="com.liuyang.bean.Type">
+        select  * from t_type where id = #{type_id}
+    </select>
+
+
+    <!--    boolean save(Type type);-->
+    <insert id="save"  useGeneratedKeys="true" keyProperty="id">
+        insert into t_type values(null,#{name})
+    </insert>
+
+    <!--List<Type> listTypeTop(Page page);-->
+    <select id="listTypeTop" resultMap="TypeAndBlogResultMap">
+        select t_type.id as tid,t_type.name,t_blog.* from t_type left join  t_blog on t_type.id=t_blog.type_id
+    </select>
+
+    <resultMap id="TypeAndBlogResultMap" type="com.liuyang.bean.Type">
+        <id property="id" column="tid"></id>
+        <result property="name" column="name"></result>
+        <collection property="blogs" ofType="com.liuyang.bean.Blog">
+            <id property="id" column="id"></id>
+            <result property="title" column="title"></result>
+            <result property="content" column="content"></result>
+            <result property="firstPicture" column="first_picture"></result>
+            <result property="flag" column="flag"></result>
+            <result property="views" column="views"></result>
+            <result property="appreciation" column="appreciation"></result>
+            <result property="shareStatement" column="share_statement"></result>
+            <result property="commentabled" column="commentabled"></result>
+            <result property="published" column="published"></result>
+            <result property="description" column="description"></result>
+            <result property="recommend" column="recommend"></result>
+            <result property="createTime" column="create_time"></result>
+            <result property="updateTime" column="update_time"></result>
+        </collection>
+    </resultMap>
+
+    <!--Type TypeAndBlog(@Param("tid") Integer id);-->
+    <select id="TypeAndBlog" resultMap="TypeAndBlogResultMap">
+        select t_type.id as tid,t_type.name,t_blog.* from t_type left join  t_blog on t_type.id=t_blog.type_id where t_type.id=#{tid}
+    </select>
+
+
+</mapper>

@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.liuyang.mapper.BlogMapper">
+
+<!--    boolean saveByBlog(Blog blog);-->
+    <insert id="saveByBlog"  useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO t_blog (title, content, first_picture, views, appreciation, share_statement, commentabled, published, recommend, create_time, update_time ,type_id,user_id,description)
+        VALUES ( #{title}, #{content}, #{firstPicture}, #{views}, #{appreciation}, #{shareStatement}, #{commentabled}, #{published}, #{recommend}, #{createTime}, #{updateTime}, #{type.id},#{user.id},#{description})
+    </insert>
+    
+    <insert id="saveRelativity">
+        INSERT INTO t_blog_tags (blogs_id,tags_id)
+        VALUES (#{bid},#{gid})
+    </insert>
+
+    <resultMap id="blogAndTypeByStepResultMap" type="com.liuyang.bean.Blog">
+        <id property="id" column="id"></id>
+        <result property="title" column="title"></result>
+        <result property="content" column="content"></result>
+        <result property="firstPicture" column="first_picture"></result>
+        <result property="flag" column="flag"></result>
+        <result property="views" column="views"></result>
+        <result property="appreciation" column="appreciation"></result>
+        <result property="shareStatement" column="share_statement"></result>
+        <result property="commentabled" column="commentabled"></result>
+        <result property="published" column="published"></result>
+        <result property="recommend" column="recommend"></result>
+        <result property="createTime" column="create_time"></result>
+        <result property="updateTime" column="update_time"></result>
+        <association property="type"
+                     select="com.liuyang.mapper.TypeMapper.getBlogAndTypeByStepTwo"
+                     column="type_id"></association>
+        <association property="user"
+                     select="com.liuyang.mapper.UserMapper.getBlogAndUserByStepTwo"
+                     column="user_id"></association>
+        <collection property="tags" ofType="com.liuyang.bean.Tag">
+            <id property="id" column="tags_id"></id>
+            <result property="name" column="name"></result>
+        </collection>
+    </resultMap>
+
+<!--    Page<Blog> getBlogAndTypeByStepOne();-->
+    <select id="getBlogAndTypeByStepOne" resultMap="blogAndTypeByStepResultMap">
+        select * from t_blog
+        <if test="ew != null and ew != ''">
+            ${ew.customSqlSegment}
+        </if>
+    </select>
+
+    <!--Blog listBlogById(Long id)-->
+    <select id="listBlogById" resultMap="blogAndTypeByStepResultMap">
+        SELECT * FROM (SELECT * FROM t_blog LEFT JOIN t_blog_tags ON t_blog.`id`=t_blog_tags.`blogs_id`) AS bt LEFT JOIN t_tag
+        ON bt.tags_id = t_tag.`id` where bt.id = #{id}
+    </select>
+
+    <!--Page<Blog> listBlog(Page page);-->
+    <select id="listBlog" resultType="com.liuyang.bean.Blog">
+        select * from t_blog
+    </select>
+
+    <!--List<Blog> listBlogTop(Page page);-->
+    <select id="listBlogTop" resultMap="blogAndTypeByStepResultMap">
+        select * from t_blog where recommend = true order by update_time
+    </select>
+
+    <!--Page<Blog> listBlogByQuery(Page page,@Param("query") String query);-->
+    <select id="listBlogByQuery" resultMap="blogAndTypeByStepResultMap">
+        select * from t_blog
+        <where>
+            <if test="query != '' and query != null">
+                title like "%"#{query}"%" or content like "%"#{query}"%"
+            </if>
+<!--            <if test="query != '' and query != null">
+            </if>-->
+        </where>
+    </select>
+
+</mapper>
