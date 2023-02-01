@@ -33,4 +33,5 @@ public interface BlogService extends IService<Blog> {
         List<Blog> listBlogTop(Integer size);
 
         Page<Blog> listBlogByQuery(Integer pn,Integer size,String query);
+
 }

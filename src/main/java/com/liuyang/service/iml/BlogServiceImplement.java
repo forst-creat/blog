@@ -84,6 +84,11 @@ public class BlogServiceImplement extends ServiceImpl<BlogMapper,Blog> implement
         return blogMapper.listBlogById(id);
     }
 
+    /**
+     * 根据blog的id进行跳转同时增加浏览次数
+     * @param id
+     * @return
+     */
     @Override
     @Transactional
     public Blog getAndConvert(Long id) {
@@ -95,6 +100,7 @@ public class BlogServiceImplement extends ServiceImpl<BlogMapper,Blog> implement
         BeanUtils.copyProperties(blog,b);
         String content = b.getContent();
         b.setContent(MarkdownUtils.markdownToHtmlExtensions(content));
+        blogMapper.addBlogViews(id);
         return b;
     }
 
@@ -111,4 +117,5 @@ public class BlogServiceImplement extends ServiceImpl<BlogMapper,Blog> implement
         Page<Blog> page = new Page<>(pn,size);
         return blogMapper.listBlogByQuery(page,query);
     }
+
 }

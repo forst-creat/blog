@@ -77,4 +77,9 @@
         </where>
     </select>
 
+    <!--void addBlogViews(@Param("id") Long id);-->
+    <update id="addBlogViews">
+        UPDATE t_blog SET views = views + 1 WHERE id  = #{id}
+    </update>
+
 </mapper>

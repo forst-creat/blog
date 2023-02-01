@@ -4,5 +4,66 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.liuyang.mapper.CommentMapper">
 
+    <!--boolean saveComment(Comment comment);-->
+    <insert id="saveComment" useGeneratedKeys="true" keyProperty="id">
+        insert into t_comment (id,nickname,email,content,create_time,blog_id,avatar,parent_comment_id)
+        values (null,#{nickname},#{email},#{content},#{createTime},#{blog.id},#{avatar},#{parentComment.id})
+    </insert>
+
+    <!--List<Comment> listAllByReplyComments(Comment comment);-->
+    <select id="listAllByReplyComments" resultType="com.liuyang.bean.Comment">
+        SELECT * FROM t_comment WHERE id IN
+                                      (SELECT id FROM t_comment WHERE parent_comment_id = #{id})
+    </select>
+
+    <!--分步查询(自关联)-->
+    <!--自定义映射，该映射是顶级评论的映射(注意顶级映射没有父节点，而其子节点有父节点，需要额外进行自定义映射设置)-->
+    <resultMap id="CommentAndReplyComment" type="com.liuyang.bean.Comment">
+        <id property="id" column="id"></id>
+        <result property="nickname" column="nickname"></result>
+        <result property="email" column="email"></result>
+        <result property="content" column="content"></result>
+        <result property="avatar" column="avatar"></result>
+        <result property="createTime" column="create_time"></result>
+        <collection property="replyComments"
+                    select="com.liuyang.mapper.CommentMapper.getReplyCommentByStepTwo"
+                    column="id">
+        </collection>
+    </resultMap>
+
+    <!--List<Comment> getTopCommentsByStepOne(@Param("blogId") Long blogId);-->
+    <select id="getTopCommentsByStepOne" resultMap="CommentAndReplyComment">
+        select * from t_comment where blog_id = #{blogId} and parent_comment_id is null
+    </select>
+
+    <!--子节点有多对一(额外设置关于其父节点的映射)-->
+    <resultMap id="ReplyCommentAndParentComment" type="com.liuyang.bean.Comment">
+        <id property="id" column="id"></id>
+        <result property="nickname" column="nickname"></result>
+        <result property="email" column="email"></result>
+        <result property="content" column="content"></result>
+        <result property="avatar" column="avatar"></result>
+        <result property="createTime" column="create_time"></result>
+        <association property="parentComment"
+                     select="com.liuyang.mapper.CommentMapper.getParentCommentByStepOne"
+                     column="parent_comment_id"></association>
+        <collection property="replyComments"
+                    select="com.liuyang.mapper.CommentMapper.getReplyCommentByStepTwo"
+                    column="id">
+        </collection>
+    </resultMap>
+
+    <!--List<Comment> getReplyCommentByStepTwo(@Param("pid") Long pid);-->
+    <select id="getReplyCommentByStepTwo" resultMap="ReplyCommentAndParentComment">
+        select * from t_comment where parent_comment_id = #{pid}
+    </select>
+
+    <!--Comment getParentCommentByStepOne(@Param("cid") Long cid);-->
+    <select id="getParentCommentByStepOne" resultType="com.liuyang.bean.Comment">
+        select * from t_comment where id = #{cid}
+    </select>
+
+
+
 
 </mapper>

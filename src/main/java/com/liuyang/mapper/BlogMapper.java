@@ -50,4 +50,10 @@ public interface BlogMapper extends BaseMapper<Blog> {
      */
     Page<Blog> listBlogByQuery(Page page,@Param("query") String query);
 
+    /**
+     * 博客浏览次数的增加
+     * @param id
+     */
+    void addBlogViews(@Param("id") Long id);
+
 }

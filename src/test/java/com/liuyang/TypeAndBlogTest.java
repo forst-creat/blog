@@ -1,9 +1,12 @@
 package com.liuyang;
 
 import com.liuyang.bean.Blog;
+import com.liuyang.bean.Comment;
 import com.liuyang.bean.Tag;
 import com.liuyang.bean.Type;
+import com.liuyang.mapper.CommentMapper;
 import com.liuyang.service.BlogService;
+import com.liuyang.service.CommentService;
 import com.liuyang.service.TagService;
 import com.liuyang.service.TypeService;
 import org.junit.jupiter.api.Test;
@@ -27,6 +30,12 @@ public class TypeAndBlogTest {
 
     @Autowired
     private BlogService blogService;
+
+    @Autowired
+    private CommentService commentService;
+
+    @Autowired
+    private CommentMapper commentMapper;
 
     @Test
     public void test01() {
@@ -54,4 +63,22 @@ public class TypeAndBlogTest {
             System.out.println(tag);
         }
     }
+
+    @Test
+    public void test05() {
+        List<Comment> comments = commentService.listCommentByBlogId(1L);
+        for (Comment comment : comments) {
+            List<Comment> replyComments = comment.getReplyComments();
+            System.out.println(replyComments.size());
+        }
+    }
+
+    @Test
+    public void test06() {
+        Comment parentCommentByStepOne = commentMapper.getParentCommentByStepOne(3L);
+        System.out.println(parentCommentByStepOne);
+    }
+
+
+
 }

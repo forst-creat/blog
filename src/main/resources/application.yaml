@@ -54,3 +54,5 @@ logging:
 mybatis-plus:
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+comment.avatar: /images/avatar.png
